@@ -111,7 +111,7 @@ qemu-system-x86_64 \
 -accel tcg,thread=multi,tb-size=2097152 \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
--device virtio-net-pci,netdev=n0,rx_queue_size=1024,tx_queue_size=1024 \
+-device virtio-net-pci,netdev=n0 \
 -display none \
 -vga none \
 -daemonize \
