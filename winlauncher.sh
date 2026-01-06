@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#1
 set -e
 
 ask() {
@@ -38,9 +39,14 @@ git clone --depth 1 --branch v10.2.0 https://gitlab.com/qemu-project/qemu.git qe
 mkdir /tmp/qemu-build
 cd /tmp/qemu-build
 
-EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld -fno-semantic-interposition -fno-plt -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-stack-protector -funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions -finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
+EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld \
+-fno-semantic-interposition -fno-plt -fomit-frame-pointer \
+-fno-unwind-tables -fno-asynchronous-unwind-tables \
+-fno-stack-protector -funsafe-math-optimizations -ffinite-math-only \
+-fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions \
+-finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
 
-LDFLAGS="-flto=full -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
+LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
 
 ../qemu-src/configure \
 --prefix=/opt/qemu-optimized \
@@ -55,7 +61,6 @@ LDFLAGS="-flto=full -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
 --disable-vhost-net \
 --disable-vhost-user \
 --disable-vhost-user-blk-server \
---disable-vhost-user-crypto \
 --disable-vdpa \
 --disable-gtk \
 --disable-sdl \
