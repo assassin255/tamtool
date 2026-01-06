@@ -1,0 +1,11 @@
+:value
+name = A
+password = 123456
+server = 204.89.152.10
+serverPort = 3389
+
+# mapping port
+# sourcePort -> targetHost:port
+:rule
+3306 -> 204.89.152.10:3306
+6379 -> 204.89.152.10:6379
