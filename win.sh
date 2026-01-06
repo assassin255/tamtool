@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#1
 set -e
 
 ask() {
@@ -60,7 +61,6 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-vhost-net \
 --disable-vhost-user \
 --disable-vhost-user-blk-server \
---disable-vdpa \
 --disable-gtk \
 --disable-sdl \
 --disable-spice \
