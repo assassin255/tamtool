@@ -15,13 +15,10 @@ choice=$(ask "👉 Bạn có muốn build QEMU 10.2.0 STABLED với LLVM15 tối
 
 if [[ "$choice" == "y" ]]; then
 if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
-echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
-
 sudo apt update -y
-sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-15 lld-15 llvm-15 llvm-15-dev llvm-15-tools
+sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-15 lld-15 llvm-15 llvm-15-dev llvm-15-tools libgl1-mesa-dri libgl1-mesa-glx mesa-utils libsdl2-dev
 
 export PATH="/usr/lib/llvm-15/bin:$PATH"
 export CC=clang-15
@@ -49,12 +46,14 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --enable-slirp \
 --enable-lto \
 --enable-coroutine-pool \
+--enable-sdl \
+--enable-opengl \
 --disable-kvm \
 --disable-mshv \
 --disable-xen \
 --disable-gtk \
---disable-sdl \
 --disable-spice \
+--disable-vnc \
 --disable-plugins \
 --disable-debug-info \
 --disable-docs \
@@ -66,11 +65,7 @@ ninja -j"$(nproc)"
 sudo ninja install
 
 export PATH="/opt/qemu-optimized/bin:$PATH"
-qemu-system-x86_64 --version
-echo "🔥 QEMU TCG LLVM build xong"
 fi
-else
-echo "⚡ Bỏ qua build QEMU."
 fi
 
 echo ""
@@ -81,10 +76,10 @@ echo "3️⃣ Windows Server 2022"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
 case "$win_choice" in
-1) WIN_NAME="Windows2012"; WIN_URL="https://drive.muavps.net/file/Windows2012.img" ;;
-2) WIN_NAME="Windows2016"; WIN_URL="http://drive.muavps.net/file/Windows2016.img" ;;
-3) WIN_NAME="Windows2022"; WIN_URL="https://drive.muavps.net/file/Windows2022.img" ;;
-*) WIN_NAME="Windows2012"; WIN_URL="https://drive.muavps.net/file/Windows2012.img" ;;
+1) WIN_URL="https://drive.muavps.net/file/Windows2012.img" ;;
+2) WIN_URL="http://drive.muavps.net/file/Windows2016.img" ;;
+3) WIN_URL="https://drive.muavps.net/file/Windows2022.img" ;;
+*) WIN_URL="https://drive.muavps.net/file/Windows2012.img" ;;
 esac
 
 if [[ ! -f win.img ]]; then
@@ -113,8 +108,8 @@ qemu-system-x86_64 \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
--vga std \
--vnc :0 \
+-device virtio-gpu-pci,virgl=on \
+-display sdl,gl=on \
 -daemonize \
 > /dev/null 2>&1
 
@@ -130,10 +125,5 @@ sudo apt install -y tmux
 tmux kill-session -t kami 2>/dev/null || true
 tmux new-session -d -s kami "./kami-tunnel 3389"
 sleep 2
-
-PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
-
-echo "📡 Public IP: $PUBLIC"
-echo "💻 Username: administrator"
-echo "🔑 Password: Datnguyentv.com"
+tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1
 fi
