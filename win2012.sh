@@ -55,7 +55,6 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-gtk \
 --disable-sdl \
 --disable-spice \
---disable-vnc \
 --disable-plugins \
 --disable-debug-info \
 --disable-docs \
@@ -77,7 +76,6 @@ fi
 echo ""
 echo "🪟 Tải Windows Server 2012 R2"
 
-WIN_NAME="Windows2012R2"
 WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"
 
 if [[ ! -f win.img ]]; then
@@ -97,6 +95,20 @@ cpu_core="${cpu_core:-2}"
 read -rp "💾 RAM GB (default 4): " ram_size
 ram_size="${ram_size:-4}"
 
+echo ""
+echo "🔐 Chọn phương thức đăng nhập"
+echo "1️⃣ RDP (Remote Desktop)"
+echo "2️⃣ VNC (RVNC Viewer)"
+read -rp "👉 Nhập số [1-2]: " login_mode
+
+if [[ "$login_mode" == "2" ]]; then
+QEMU_DISPLAY="-vnc :0"
+TUNNEL_PORT=5900
+else
+QEMU_DISPLAY="-display none -vga none"
+TUNNEL_PORT=3389
+fi
+
 qemu-system-x86_64 \
 -machine q35 \
 -cpu "$cpu_model" \
@@ -106,27 +118,26 @@ qemu-system-x86_64 \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
--display none \
--vga none \
+$QEMU_DISPLAY \
 -daemonize \
 > /dev/null 2>&1
 
 sleep 3
 
-use_rdp=$(ask "🛰️ Có muốn public RDP qua tunnel không? (y/n): " "n")
+use_tunnel=$(ask "🛰️ Có muốn public qua tunnel không? (y/n): " "n")
 
-if [[ "$use_rdp" == "y" ]]; then
+if [[ "$use_tunnel" == "y" ]]; then
 wget -q https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
 tar -xzf kami-tunnel-linux-amd64.tar.gz
 chmod +x kami-tunnel
 sudo apt install -y tmux
 tmux kill-session -t kami 2>/dev/null || true
-tmux new-session -d -s kami "./kami-tunnel 3389"
+tmux new-session -d -s kami "./kami-tunnel $TUNNEL_PORT"
 sleep 2
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
 
-echo "📡 Public IP: $PUBLIC"
+echo "📡 Public Address: $PUBLIC"
 echo "💻 Username: administrator"
 echo "🔑 Password: Tamnguyenyt@123"
 fi
