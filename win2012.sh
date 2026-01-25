@@ -21,7 +21,6 @@ else
 echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
 
 sudo apt update -y
-sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-19 lld-19 llvm-19 llvm-19-dev llvm-19-tools
 
 export PATH="/usr/lib/llvm-15/bin:$PATH"
 export CC=clang-15
