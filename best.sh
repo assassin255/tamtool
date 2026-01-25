@@ -118,7 +118,7 @@ read -rp "💾 RAM GB (default 4): " ram_size
 ram_size="${ram_size:-4}"
 
 qemu-system-x86_64 \
--machine q35 \
+-machine q35,hpet=off \
 -cpu "$cpu_model" \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
@@ -126,7 +126,6 @@ qemu-system-x86_64 \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
--no-hpet \
 -display none \
 -vga none \
 -daemonize \
