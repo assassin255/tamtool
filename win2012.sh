@@ -20,7 +20,7 @@ export PATH="/opt/qemu-optimized/bin:$PATH"
 else
 echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
 
-sudo apt update -y
+sudo apt update && apt install aria2
 
 export PATH="/usr/lib/llvm-15/bin:$PATH"
 export CC=clang-15
