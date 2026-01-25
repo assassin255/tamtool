@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+#1
 
 ask() {
 read -rp "$1" ans
@@ -18,7 +19,7 @@ if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Build QEMU 10.2.0 LLVM EXTREME"
+echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
 
 OS_ID="$(. /etc/os-release && echo "$ID")"
 OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
@@ -30,7 +31,12 @@ LLVM_VER=15
 fi
 
 sudo apt update -y
+
+if [[ "$OS_ID" == "debian" && "$OS_VER" == "13" ]]; then
+sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
+else
 sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
+fi
 
 export PATH="/usr/lib/llvm-$LLVM_VER/bin:$PATH"
 export CC="clang-$LLVM_VER"
