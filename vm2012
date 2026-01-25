@@ -23,9 +23,9 @@ echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
 sudo apt update -y
 sudo apt install aria2 -y
 export PATH="/usr/lib/llvm-15/bin:$PATH"
-export CC=clang-15
-export CXX=clang++-15
-export LD=lld-15
+export CC=clang-19
+export CXX=clang++-19
+export LD=lld-19
 
 python3 -m venv ~/qemu-env
 source ~/qemu-env/bin/activate
