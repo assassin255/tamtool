@@ -11,22 +11,31 @@ echo "$ans"
 fi
 }
 
-choice=$(ask "👉 Bạn có muốn build QEMU 10.2.0 STABLED với LLVM15 tối ưu ULTRA không? (y/n): " "n")
+choice=$(ask "👉 Bạn có muốn build QEMU 10.2.0 STABLED với LLVM tối ưu ULTRA không? (y/n): " "n")
 
 if [[ "$choice" == "y" ]]; then
 if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
+echo "🚀 Build QEMU 10.2.0 LLVM EXTREME"
+
+OS_ID="$(. /etc/os-release && echo "$ID")"
+OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
+
+if [[ "$OS_ID" == "debian" && "$OS_VER" == "13" ]]; then
+LLVM_VER=19
+else
+LLVM_VER=15
+fi
 
 sudo apt update -y
-sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-15 lld-15 llvm-15 llvm-15-dev llvm-15-tools
+sudo apt install -y wget gnupg lsb-release software-properties-common build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
 
-export PATH="/usr/lib/llvm-15/bin:$PATH"
-export CC=clang-15
-export CXX=clang++-15
-export LD=lld-15
+export PATH="/usr/lib/llvm-$LLVM_VER/bin:$PATH"
+export CC="clang-$LLVM_VER"
+export CXX="clang++-$LLVM_VER"
+export LD="lld-$LLVM_VER"
 
 python3 -m venv ~/qemu-env
 source ~/qemu-env/bin/activate
@@ -38,12 +47,7 @@ git clone --depth 1 --branch v10.2.0 https://gitlab.com/qemu-project/qemu.git qe
 mkdir /tmp/qemu-build
 cd /tmp/qemu-build
 
-EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld \
--fno-semantic-interposition -fno-plt -fomit-frame-pointer \
--fno-unwind-tables -fno-asynchronous-unwind-tables \
--fno-stack-protector -funsafe-math-optimizations -ffinite-math-only \
--fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions \
--finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
+EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld -fno-semantic-interposition -fno-plt -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-stack-protector -funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions -finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
 
 LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
 
@@ -86,9 +90,9 @@ echo "2️⃣ Windows Server 2022"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
 case "$win_choice" in
-1) WIN_NAME="Windows2012"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
-2) WIN_NAME="Windows2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
-*) WIN_NAME="Windows2012"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
+1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
+2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
+*) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
 esac
 
 if [[ ! -f win.img ]]; then
@@ -117,6 +121,7 @@ qemu-system-x86_64 \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
+-no-hpet \
 -display none \
 -vga none \
 -daemonize \
@@ -137,7 +142,20 @@ sleep 2
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
 
-echo "📡 Public IP: $PUBLIC"
-echo "💻 Username: administrator"
-echo "🔑 Password: Tamnguyenyt@123"
+echo ""
+echo "══════════════════════════════════════════════"
+echo "🚀 WINDOWS VM DEPLOYED SUCCESSFULLY"
+echo "══════════════════════════════════════════════"
+echo "🪟 OS          : $WIN_NAME"
+echo "⚙ CPU Cores   : $cpu_core"
+echo "💾 RAM         : ${ram_size} GB"
+echo "🧠 CPU Host    : $cpu_host"
+echo "──────────────────────────────────────────────"
+echo "📡 RDP Address : $PUBLIC"
+echo "👤 Username    : administrator"
+echo "🔑 Password    : Tamnguyenyt@123"
+echo "══════════════════════════════════════════════"
+echo "🟢 Status      : RUNNING"
+echo "⏱ Boot Mode   : Headless / RDP"
+echo "══════════════════════════════════════════════"
 fi
