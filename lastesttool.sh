@@ -67,6 +67,7 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-gtk \
 --disable-sdl \
 --disable-spice \
+--disable-vnc \
 --disable-plugins \
 --disable-debug-info \
 --disable-docs \
@@ -141,33 +142,9 @@ silent sudo apt install -y tmux
 
 tmux kill-session -t kami 2>/dev/null || true
 tmux new-session -d -s kami "./kami-tunnel 3389"
-sleep 2
+sleep 4
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
-
-silent sudo apt update
-silent sudo apt install -y git curl python3 python3-pip
-
-cd /opt
-silent sudo rm -rf noVNC websockify
-silent sudo git clone https://github.com/novnc/noVNC.git
-silent sudo git clone https://github.com/novnc/websockify.git
-
-cd /opt/noVNC
-nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 &
-
-cd /tmp
-silent curl -fL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
-silent sudo mv cloudflared /usr/local/bin/cloudflared
-silent sudo chmod +x /usr/local/bin/cloudflared
-
-nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 &
-
-for i in $(seq 1 30); do
-NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1)
-[ -n "$NOVNC_URL" ] && break
-sleep 1
-done
 
 echo ""
 echo "══════════════════════════════════════════════"
@@ -183,7 +160,6 @@ echo "👤 Username    : administrator"
 echo "🔑 Password    : Tamnguyenyt@123"
 echo "══════════════════════════════════════════════"
 echo "🟢 Status      : RUNNING"
-echo "🖥 noVNC Console : $NOVNC_URL"
 echo "⏱ GUI Mode   : VNC / RDP"
 echo "══════════════════════════════════════════════"
 fi
