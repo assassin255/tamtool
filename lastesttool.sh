@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-
+#1
 ask() {
 read -rp "$1" ans
 ans="${ans,,}"
@@ -150,15 +150,18 @@ cd /opt/noVNC && \
 nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 & \
 sleep 2 && \
 cd /tmp && \
-curl -fL --retry 5 --retry-delay 2 \
+curl -fL --connect-timeout 10 --max-time 60 --retry 5 --retry-delay 2 \
 https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
 -o cloudflared && \
 sudo mv cloudflared /usr/local/bin/cloudflared && \
 sudo chmod +x /usr/local/bin/cloudflared && \
 nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 & \
-sleep 4 && \
-grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1
-NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1)
+sleep 1 && \
+for i in $(seq 1 30); do \
+NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1); \
+[ -n "$NOVNC_URL" ] && echo "$NOVNC_URL" && break; \
+sleep 1; \
+done
 
 echo ""
 echo "══════════════════════════════════════════════"
