@@ -127,7 +127,7 @@ qemu-system-x86_64 \
 -device virtio-net-pci,netdev=n0 \
 -display none \
 -vga none \
--vnc :0
+-vnc :0 \
 -daemonize \
 > /dev/null 2>&1
 
