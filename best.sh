@@ -69,7 +69,6 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-gtk \
 --disable-sdl \
 --disable-spice \
---disable-vnc \
 --disable-plugins \
 --disable-debug-info \
 --disable-docs \
@@ -128,6 +127,7 @@ qemu-system-x86_64 \
 -device virtio-net-pci,netdev=n0 \
 -display none \
 -vga none \
+-vnc :0 \
 -daemonize \
 > /dev/null 2>&1
 
@@ -146,6 +146,17 @@ sleep 2
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
 
+sudo apt install -y python3 git curl
+rm -rf /tmp/noVNC
+git clone https://github.com/novnc/noVNC.git /tmp/noVNC
+cd /tmp/noVNC
+nohup ./utils/novnc_proxy --vnc localhost:5900 --listen 8080 >/tmp/novnc.log 2>&1 &
+sleep 2
+cd /tmp
+curl -fsSL -o cloudflared-linux-amd64.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo apt install -y ./cloudflared-linux-amd64.deb
+NOVNC_URL=$(sudo cloudflared tunnel --url http://127.0.0.1:8080 2>&1 | grep -m1 'https://')
+
 echo ""
 echo "══════════════════════════════════════════════"
 echo "🚀 WINDOWS VM DEPLOYED SUCCESSFULLY"
@@ -160,6 +171,7 @@ echo "👤 Username    : administrator"
 echo "🔑 Password    : Tamnguyenyt@123"
 echo "══════════════════════════════════════════════"
 echo "🟢 Status      : RUNNING"
-echo "⏱ Boot Mode   : Headless / RDP"
+echo "🖥 noVNC Console : $NOVNC_URL"
+echo "⏱ Gui Mode : VNC / RDP"
 echo "══════════════════════════════════════════════"
 fi
