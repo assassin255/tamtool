@@ -141,18 +141,23 @@ sleep 2
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
 
-sudo apt update && sudo apt install -y git curl python3 python3-pip
-cd /opt
-sudo rm -rf noVNC websockify
-sudo git clone https://github.com/novnc/noVNC.git
-sudo git clone https://github.com/novnc/websockify.git
-cd /opt/noVNC
-nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 &
-sleep 2
-curl -fsSL -o /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-sudo chmod +x /usr/local/bin/cloudflared
-nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 &
-sleep 3
+sudo apt update && sudo apt install -y git curl python3 python3-pip && \
+cd /opt && \
+sudo rm -rf noVNC websockify && \
+sudo git clone https://github.com/novnc/noVNC.git && \
+sudo git clone https://github.com/novnc/websockify.git && \
+cd /opt/noVNC && \
+nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 & \
+sleep 2 && \
+cd /tmp && \
+curl -fL --retry 5 --retry-delay 2 \
+https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+-o cloudflared && \
+sudo mv cloudflared /usr/local/bin/cloudflared && \
+sudo chmod +x /usr/local/bin/cloudflared && \
+nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 & \
+sleep 4 && \
+grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1
 NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1)
 
 echo ""
