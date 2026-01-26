@@ -133,7 +133,7 @@ qemu-system-x86_64 \
 
 sleep 3
 
-use_rdp=$(ask "🛰️ Có muốn public RDP qua tunnel không? (y/n): " "n")
+use_rdp=$(ask "🛰️ Có muốn mở port để kết nối đến VM không? (y/n): " "n")
 
 if [[ "$use_rdp" == "y" ]]; then
 wget -q https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
@@ -155,8 +155,11 @@ sleep 2
 cd /tmp
 curl -fsSL -o cloudflared-linux-amd64.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
 sudo apt install -y ./cloudflared-linux-amd64.deb
-NOVNC_URL=$(sudo cloudflared tunnel --url http://127.0.0.1:8080 2>&1 | grep -m1 'https://')
+NOVNC_URL=$(sudo cloudflared tunnel --url http://127.0.0.1:8080 2>&1 \
+| grep -o 'https://[^ ]*trycloudflare.com' \
+| head -n 1)
 
+echo "🖥 noVNC Console : $NOVNC_URL"
 echo ""
 echo "══════════════════════════════════════════════"
 echo "🚀 WINDOWS VM DEPLOYED SUCCESSFULLY"
