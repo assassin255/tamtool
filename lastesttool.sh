@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
-#1
+
+silent() {
+"$@" > /dev/null 2>&1
+}
+
 ask() {
 read -rp "$1" ans
 ans="${ans,,}"
@@ -29,9 +33,8 @@ else
 LLVM_VER=15
 fi
 
-sudo apt update -y
-
-sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
+silent sudo apt update
+silent sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
 
 export PATH="/usr/lib/llvm-$LLVM_VER/bin:$PATH"
 export CC="clang-$LLVM_VER"
@@ -40,11 +43,11 @@ export LD="lld-$LLVM_VER"
 
 python3 -m venv ~/qemu-env
 source ~/qemu-env/bin/activate
-pip install --upgrade pip tomli packaging
+silent pip install --upgrade pip tomli packaging
 
 rm -rf /tmp/qemu-src /tmp/qemu-build
 cd /tmp
-git clone --depth 1 --branch v10.2.0 https://gitlab.com/qemu-project/qemu.git qemu-src
+silent git clone --depth 1 --branch v10.2.0 https://gitlab.com/qemu-project/qemu.git qemu-src
 mkdir /tmp/qemu-build
 cd /tmp/qemu-build
 
@@ -71,8 +74,8 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-fdt \
 CC="$CC" CXX="$CXX" LD="$LD" CFLAGS="$EXTRA_CFLAGS" CXXFLAGS="$EXTRA_CFLAGS" LDFLAGS="$LDFLAGS"
 
-ninja -j"$(nproc)"
-sudo ninja install
+silent ninja -j"$(nproc)"
+silent sudo ninja install
 
 export PATH="/opt/qemu-optimized/bin:$PATH"
 qemu-system-x86_64 --version
@@ -95,12 +98,12 @@ case "$win_choice" in
 esac
 
 if [[ ! -f win.img ]]; then
-aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
+silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
 fi
 
 read -rp "📦 Mở rộng đĩa thêm bao nhiêu GB (default 20)? " extra_gb
 extra_gb="${extra_gb:-20}"
-qemu-img resize win.img "+${extra_gb}G"
+silent qemu-img resize win.img "+${extra_gb}G"
 
 cpu_host=$(grep -m1 "model name" /proc/cpuinfo | sed 's/^.*: //')
 cpu_model="qemu64,pmu=off,model-id=${cpu_host}"
@@ -131,36 +134,39 @@ sleep 3
 use_rdp=$(ask "🛰️ Tiếp tục mở port để kết nối đến VM? (y/n): " "n")
 
 if [[ "$use_rdp" == "y" ]]; then
-wget -q https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
-tar -xzf kami-tunnel-linux-amd64.tar.gz
-chmod +x kami-tunnel
-sudo apt install -y tmux
+silent wget https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
+silent tar -xzf kami-tunnel-linux-amd64.tar.gz
+silent chmod +x kami-tunnel
+silent sudo apt install -y tmux
+
 tmux kill-session -t kami 2>/dev/null || true
 tmux new-session -d -s kami "./kami-tunnel 3389"
 sleep 2
 
 PUBLIC=$(tmux capture-pane -pt kami -p | sed 's/\x1b\[[0-9;]*m//g' | grep -i 'public' | grep -oE '[a-zA-Z0-9\.\-]+:[0-9]+' | head -n1)
 
-sudo apt update && sudo apt install -y git curl python3 python3-pip && \
-cd /opt && \
-sudo rm -rf noVNC websockify && \
-sudo git clone https://github.com/novnc/noVNC.git && \
-sudo git clone https://github.com/novnc/websockify.git && \
-cd /opt/noVNC && \
-nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 & \
-sleep 2 && \
-cd /tmp && \
-curl -fL --connect-timeout 10 --max-time 60 --retry 5 --retry-delay 2 \
-https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
--o cloudflared && \
-sudo mv cloudflared /usr/local/bin/cloudflared && \
-sudo chmod +x /usr/local/bin/cloudflared && \
-nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 & \
-sleep 1 && \
-for i in $(seq 1 30); do \
-NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1); \
-[ -n "$NOVNC_URL" ] && echo "$NOVNC_URL" && break; \
-sleep 1; \
+silent sudo apt update
+silent sudo apt install -y git curl python3 python3-pip
+
+cd /opt
+silent sudo rm -rf noVNC websockify
+silent sudo git clone https://github.com/novnc/noVNC.git
+silent sudo git clone https://github.com/novnc/websockify.git
+
+cd /opt/noVNC
+nohup python3 ../websockify/run --web . 8080 127.0.0.1:5900 > /tmp/novnc.log 2>&1 &
+
+cd /tmp
+silent curl -fL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+silent sudo mv cloudflared /usr/local/bin/cloudflared
+silent sudo chmod +x /usr/local/bin/cloudflared
+
+nohup sudo cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > /tmp/cloudflared.log 2>&1 &
+
+for i in $(seq 1 30); do
+NOVNC_URL=$(grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared.log | head -n1)
+[ -n "$NOVNC_URL" ] && break
+sleep 1
 done
 
 echo ""
