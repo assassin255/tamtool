@@ -160,6 +160,6 @@ echo "👤 Username    : administrator"
 echo "🔑 Password    : Tamnguyenyt@123"
 echo "══════════════════════════════════════════════"
 echo "🟢 Status      : RUNNING"
-echo "⏱ GUI Mode   : VNC / RDP"
+echo "⏱ GUI Mode   : Headless / RDP"
 echo "══════════════════════════════════════════════"
 fi
