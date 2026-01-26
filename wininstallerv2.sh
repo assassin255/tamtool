@@ -128,8 +128,7 @@ qemu-system-x86_64 \
 -vga none \
 -vnc :0 \
 -daemonize \
-> /dev/null 2>&1
-
+> /dev/null 2>&1 || true
 sleep 3
 
 use_rdp=$(ask "🛰️ Tiếp tục mở port để kết nối đến VM? (y/n): " "n")
