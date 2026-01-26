@@ -22,7 +22,7 @@ if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Build QEMU 10.2.0 TCG EXTREME"
+echo "🚀 Đang Tải Các Apt Cần Thiết..."
 
 OS_ID="$(. /etc/os-release && echo "$ID")"
 OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
@@ -73,7 +73,7 @@ LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -W
 --disable-werror \
 --disable-fdt \
 CC="$CC" CXX="$CXX" LD="$LD" CFLAGS="$EXTRA_CFLAGS" CXXFLAGS="$EXTRA_CFLAGS" LDFLAGS="$LDFLAGS"
-
+echo "🕧 QEMU đang được build vui lòng đợi... ( Có thể sẽ khá lâu )"
 silent ninja -j"$(nproc)"
 silent sudo ninja install
 
@@ -96,7 +96,7 @@ case "$win_choice" in
 2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
 *) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
 esac
-
+echo "🪟 Đang Tải..."
 if [[ ! -f win.img ]]; then
 silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
 fi
@@ -132,7 +132,7 @@ qemu-system-x86_64 \
 sleep 3
 
 use_rdp=$(ask "🛰️ Tiếp tục mở port để kết nối đến VM? (y/n): " "n")
-
+echo "⌛ Đang Tạo VM với cấu hình bạn đã nhập vui lòng đợi..."
 if [[ "$use_rdp" == "y" ]]; then
 silent wget https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
 silent tar -xzf kami-tunnel-linux-amd64.tar.gz
