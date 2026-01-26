@@ -15,7 +15,7 @@ echo "$ans"
 fi
 }
 
-choice=$(ask "👉 Bạn có muốn build QEMU 10.2.0 STABLED với LLVM tối ưu ULTRA không? (y/n): " "n")
+choice=$(ask "👉 Bạn có muốn build QEMU để tạo VM với tăng tốc LLVM không ? (y/n): " "n")
 
 if [[ "$choice" == "y" ]]; then
 if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
@@ -53,8 +53,8 @@ cd /tmp/qemu-build
 
 EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld -fno-semantic-interposition -fno-plt -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-stack-protector -funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions -finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
 LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
-
-../qemu-src/configure \
+echo "🔁 Đang Biên Dịch..."
+silent ../qemu-src/configure \
 --prefix=/opt/qemu-optimized \
 --target-list=x86_64-softmmu \
 --enable-tcg \
@@ -80,7 +80,7 @@ silent sudo ninja install
 
 export PATH="/opt/qemu-optimized/bin:$PATH"
 qemu-system-x86_64 --version
-echo "🔥 QEMU HEADLESS TCG build xong"
+echo "🔥 QEMU LLVM đã build xong"
 fi
 else
 echo "⚡ Bỏ qua build QEMU."
@@ -97,7 +97,7 @@ case "$win_choice" in
 2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
 *) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
 esac
-echo "🪟 Đang Tải..."
+echo "🪟 Đang Tải $WIN_NAME..."
 if [[ ! -f win.img ]]; then
 silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
 fi
