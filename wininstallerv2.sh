@@ -121,13 +121,12 @@ qemu-system-x86_64 \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
 -accel tcg,thread=multi,tb-size=2097152 \
--rtc base=localtime,clock=host,driftfix=slew \
+-rtc base=localtime \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
 -nodefaults \
 -no-user-config \
--no-reboot \
 -display none \
 -vga none \
 -serial none \
