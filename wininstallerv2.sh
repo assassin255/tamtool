@@ -107,7 +107,7 @@ extra_gb="${extra_gb:-20}"
 silent qemu-img resize win.img "+${extra_gb}G"
 
 cpu_host=$(grep -m1 "model name" /proc/cpuinfo | sed 's/^.*: //')
-cpu_model="qemu64,pmu=off,model-id=${cpu_host}"
+cpu_model="base,pmu=off,model-id=${cpu_host}"
 
 read -rp "⚙ CPU core (default 2): " cpu_core
 cpu_core="${cpu_core:-2}"
