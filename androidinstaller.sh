@@ -128,7 +128,6 @@ qemu-system-x86_64 \
 -cdrom android.iso \
 -serial mon:stdio \
 -daemonize
-> /dev/null 2>&1 || true
 sleep 3
 
 use_rdp=$(ask "🛰️ Tiếp tục mở port để kết nối đến VM? (y/n): " "n")
