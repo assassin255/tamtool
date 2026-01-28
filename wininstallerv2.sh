@@ -107,7 +107,7 @@ extra_gb="${extra_gb:-20}"
 silent qemu-img resize win.img "+${extra_gb}G"
 
 cpu_host=$(grep -m1 "model name" /proc/cpuinfo | sed 's/^.*: //')
-cpu_model="qemu64,hypervisor=off,pmu=off,l3-cache=on,+cmov,+mmx,+fxsr,+sse2,+ssse3,+sse4.1,+sse4.2,+popcnt,+aes,+cx16,+x2apic,model-id=${cpu_host}"
+cpu_model="qemu64,hypervisor=off,pmu=off,l3-cache=on,+cmov,+mmx,+fxsr,+sse2,+ssse3,+sse4.1,+sse4.2,+popcnt,+aes,+cx16,+x2apic,+sep,+pat,model-id=${cpu_host}"
 
 read -rp "⚙ CPU core (default 4): " cpu_core
 cpu_core="${cpu_core:-4}"
@@ -121,7 +121,7 @@ qemu-system-x86_64 \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
 -accel tcg,thread=multi,tb-size=2097152 \
--rtc base=localtime,clock=host,driftfix=slew \
+-rtc base=localtime \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
