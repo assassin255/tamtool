@@ -94,7 +94,7 @@ case "$win_choice" in
 esac
 echo "🪟 Đang Tải $WIN_NAME..."
 if [[ ! -f win.img ]]; then
-silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
+silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o android.iso
 fi
 
 read -rp "📦 Tạo disk với bao nhiêu GB (default 50)? " extra_gb
