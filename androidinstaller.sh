@@ -124,7 +124,7 @@ qemu-system-x86_64 \
 -nodefaults \
 -no-user-config \
 -display vnc :0 \
--boot order=d \
+-boot order=d,menu=on \
 -cdrom android.iso \
 -serial mon:stdio \
 -daemonize
