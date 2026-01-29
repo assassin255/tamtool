@@ -99,7 +99,7 @@ fi
 
 read -rp "📦 Tạo disk với bao nhiêu GB (default 50)? " extra_gb
 extra_gb="${extra_gb:-50}"
-silent qemu-img create -f qcow2 disk.qcow2 50G "+${extra_gb}G"
+silent qemu-img create -f qcow2 disk.qcow2 "${extra_gb}G"
 
 cpu_host=$(grep -m1 "model name" /proc/cpuinfo | sed 's/^.*: //')
 cpu_model="qemu64,hypervisor=off,pmu=off,l3-cache=on,+cmov,+mmx,+fxsr,+sse2,+ssse3,+sse4.1,+sse4.2,+popcnt,+aes,+cx16,+x2apic,+sep,+pat,+pse,model-id=${cpu_host}"
@@ -115,18 +115,19 @@ qemu-system-x86_64 \
 -cpu "$cpu_model",vmx=off,hypervisor=off \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
--accel tcg,thread=multi,tb-size=2097152 \
--rtc base=localtime \
--drive file=disk.qcow2,if=virtio,cache=unsafe,aio=threads,format=qcow2 \
+--rtc base=utc \
+-device ich9-ahci \
+-drive file=disk.qcow2,if=none,id=disk0,format=qcow2,cache=unsafe,aio=threads \
 -netdev user,id=n0 \
--device virtio-net-pci,netdev=n0 \
--device virtio-vga \
--nodefaults \
--no-user-config \
--display vnc :0 \
+-device e1000,netdev=n0 \
+-vga std \
+-device qemu-xhci \
+-device usb-kbd \
+-device usb-tablet \
+-vnc :0 \
 -boot order=d,menu=on \
 -cdrom android.iso \
--serial mon:stdio \
+-no-user-config \
 -daemonize
 sleep 3
 
