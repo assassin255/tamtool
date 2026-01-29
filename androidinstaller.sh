@@ -120,7 +120,7 @@ qemu-system-x86_64 \
 -drive file=disk.qcow2,if=none,id=disk0,format=qcow2,cache=unsafe,aio=threads \
 -netdev user,id=n0 \
 -device e1000,netdev=n0 \
--vga std \
+-device virtio-vga \
 -device qemu-xhci \
 -device usb-kbd \
 -device usb-tablet \
