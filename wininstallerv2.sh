@@ -90,11 +90,13 @@ echo ""
 echo "🪟 Chọn phiên bản Windows muốn tải:"
 echo "1️⃣ Windows Server 2012 R2"
 echo "2️⃣ Windows Server 2022"
+echo "3️⃣ Windows 11 LTSB"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
 case "$win_choice" in
 1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
 2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
+3) WIN_NAME="Windows Server 2025 LTSB"; WIN_URL="https://archive.org/download/tamdz-w-11/TamdzW11.img" ;;
 *) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
 esac
 echo "🪟 Đang Tải $WIN_NAME..."
