@@ -22,7 +22,7 @@ if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Đang Tải Các Apt Cần Thiết..."
+echo "🚀 Đang tải apt cần thiết..."
 echo "⚠️ Hãy đảm bảo rằng đã tải apt install sudo"
 
 
