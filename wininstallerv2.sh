@@ -22,9 +22,8 @@ if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Đang tải apt cần thiết..."
-echo "⚠️ Hãy đảm bảo rằng đã tải apt install sudo"
-
+echo "🚀 Đang Tải Các Apt Cần Thiết..."
+echo "⚠️ Nếu lỗi hãy thử dùng apt install sudo"
 
 OS_ID="$(. /etc/os-release && echo "$ID")"
 OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
@@ -36,7 +35,7 @@ LLVM_VER=15
 fi
 
 silent sudo apt update
-silent sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev ovmf libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
+silent sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools ovmf
 
 export PATH="/usr/lib/llvm-$LLVM_VER/bin:$PATH"
 export CC="clang-$LLVM_VER"
@@ -55,6 +54,7 @@ cd /tmp/qemu-build
 
 EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -fuse-ld=lld -fno-semantic-interposition -fno-plt -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-stack-protector -funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fstrict-aliasing -funroll-loops -finline-functions -finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=2097152"
 LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
+
 echo "🔁 Đang Biên Dịch..."
 silent ../qemu-src/configure \
 --prefix=/opt/qemu-optimized \
@@ -76,7 +76,8 @@ silent ../qemu-src/configure \
 --disable-werror \
 --disable-fdt \
 CC="$CC" CXX="$CXX" LD="$LD" CFLAGS="$EXTRA_CFLAGS" CXXFLAGS="$EXTRA_CFLAGS" LDFLAGS="$LDFLAGS"
-echo "🕧 QEMU đang được build vui lòng đợi... ( Có thể sẽ khá lâu )"
+
+echo "🕧 QEMU đang được build vui lòng đợi..."
 silent ninja -j"$(nproc)"
 silent sudo ninja install
 
@@ -96,11 +97,12 @@ echo "3️⃣ Windows 11 LTSB"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
 case "$win_choice" in
-1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
-2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img" ;;
-3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://archive.org/download/tamdz-w-11/TamdzW11.img" ;;
-*) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img" ;;
+1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
+2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img"; USE_UEFI="no" ;;
+3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://link-win11.img"; USE_UEFI="yes" ;;
+*) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
 esac
+
 echo "🪟 Đang Tải $WIN_NAME..."
 if [[ ! -f win.img ]]; then
 silent aria2c -x16 -s16 --continue --file-allocation=none "$WIN_URL" -o win.img
@@ -119,6 +121,12 @@ cpu_core="${cpu_core:-4}"
 read -rp "💾 RAM GB (default 4): " ram_size
 ram_size="${ram_size:-4}"
 
+if [[ "$USE_UEFI" == "yes" ]]; then
+BIOS_OPT="-bios /usr/share/qemu/OVMF.fd"
+else
+BIOS_OPT=""
+fi
+
 qemu-system-x86_64 \
 -machine q35,hpet=off \
 -cpu "$cpu_model" \
@@ -126,22 +134,26 @@ qemu-system-x86_64 \
 -m "${ram_size}G" \
 -accel tcg,thread=multi,tb-size=2097152 \
 -rtc base=localtime \
--bios /usr/share/qemu/OVMF.fd \
+$BIOS_OPT \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
+-device virtio-mouse-pci \
+-device virtio-keyboard-pci \
 -nodefaults \
 -smbios type=1,manufacturer="Dell Inc.",product="PowerEdge R640" \
 -global kvm-pit.lost_tick_policy=discard \
 -no-user-config \
--vga virtio \
 -display none \
+-vga virtio \
 -daemonize \
 > /dev/null 2>&1 || true
+
 sleep 3
 
 use_rdp=$(ask "🛰️ Tiếp tục mở port để kết nối đến VM? (y/n): " "n")
 echo "⌛ Đang Tạo VM với cấu hình bạn đã nhập vui lòng đợi..."
+
 if [[ "$use_rdp" == "y" ]]; then
 silent wget https://github.com/kami2k1/tunnel/releases/latest/download/kami-tunnel-linux-amd64.tar.gz
 silent tar -xzf kami-tunnel-linux-amd64.tar.gz
