@@ -104,7 +104,7 @@ case "$win_choice" in
 esac
 
 if [[ "$win_choice" == "3" ]]; then
-RDP_USER="Administrator"
+RDP_USER="Admin"
 RDP_PASS="Tam255Z"
 else
 RDP_USER="administrator"
