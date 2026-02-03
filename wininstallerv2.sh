@@ -149,6 +149,8 @@ $BIOS_OPT \
 -device virtio-mouse-pci \
 -device virtio-keyboard-pci \
 -nodefaults \
+-global ICH9-LPC.disable_s3=1 \
+-global ICH9-LPC.disable_s4=1 \
 -smbios type=1,manufacturer="Dell Inc.",product="PowerEdge R640" \
 -global kvm-pit.lost_tick_policy=discard \
 -no-user-config \
