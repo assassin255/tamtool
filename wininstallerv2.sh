@@ -22,7 +22,7 @@ if [ -x /opt/qemu-optimized/bin/qemu-system-x86_64 ]; then
 echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
-echo "🚀 Đang tải apt cần thiết..."
+echo "🚀 Đang Tải Các Apt Cần Thiết..."
 echo "⚠️ Nếu lỗi hãy thử dùng apt install sudo"
 
 OS_ID="$(. /etc/os-release && echo "$ID")"
@@ -99,9 +99,17 @@ read -rp "👉 Nhập số [1-3]: " win_choice
 case "$win_choice" in
 1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
 2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img"; USE_UEFI="no" ;;
-3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://archive.org/download/win_20260203/win.img"; USE_UEFI="yes" ;;
+3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://link-win11.img"; USE_UEFI="yes" ;;
 *) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
 esac
+
+if [[ "$win_choice" == "3" ]]; then
+RDP_USER="Administrator"
+RDP_PASS="Tam255Z"
+else
+RDP_USER="administrator"
+RDP_PASS="Tamnguyenyt@123"
+fi
 
 echo "🪟 Đang Tải $WIN_NAME..."
 if [[ ! -f win.img ]]; then
@@ -176,8 +184,8 @@ echo "💾 RAM         : ${ram_size} GB"
 echo "🧠 CPU Host    : $cpu_host"
 echo "──────────────────────────────────────────────"
 echo "📡 RDP Address : $PUBLIC"
-echo "👤 Username    : administrator"
-echo "🔑 Password    : Tamnguyenyt@123"
+echo "👤 Username    : $RDP_USER"
+echo "🔑 Password    : $RDP_PASS"
 echo "══════════════════════════════════════════════"
 echo "🟢 Status      : RUNNING"
 echo "⏱ GUI Mode   : Headless / RDP"
