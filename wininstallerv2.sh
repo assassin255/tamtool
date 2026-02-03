@@ -117,7 +117,6 @@ cpu_core="${cpu_core:-4}"
 read -rp "💾 RAM GB (default 4): " ram_size
 ram_size="${ram_size:-4}"
 
-cp /usr/share/OVMF/OVMF_VARS.fd ./OVMF_VARS.fd && \
 qemu-system-x86_64 \
 -machine q35,hpet=off \
 -cpu "$cpu_model" \
@@ -125,8 +124,7 @@ qemu-system-x86_64 \
 -m "${ram_size}G" \
 -accel tcg,thread=multi,tb-size=2097152 \
 -rtc base=localtime \
--drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
--drive if=pflash,format=raw,file=OVMF_VARS.fd \
+-bios /usr/share/qemu/OVMF.fd \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0,hostfwd=tcp::3389-:3389 \
 -device virtio-net-pci,netdev=n0 \
@@ -138,7 +136,7 @@ qemu-system-x86_64 \
 -vga none \
 -serial none \
 -parallel none \
--daemonize
+-daemonize \
 > /dev/null 2>&1 || true
 sleep 3
 
