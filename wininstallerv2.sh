@@ -132,10 +132,8 @@ qemu-system-x86_64 \
 -smbios type=1,manufacturer="Dell Inc.",product="PowerEdge R640" \
 -global kvm-pit.lost_tick_policy=discard \
 -no-user-config \
+-vga virtio \
 -display none \
--vga none \
--serial none \
--parallel none \
 -daemonize \
 > /dev/null 2>&1 || true
 sleep 3
