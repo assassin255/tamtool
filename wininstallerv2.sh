@@ -23,6 +23,8 @@ echo "⚡ QEMU ULTRA đã tồn tại — skip build"
 export PATH="/opt/qemu-optimized/bin:$PATH"
 else
 echo "🚀 Đang Tải Các Apt Cần Thiết..."
+echo "⚠️ Hãy đảm bảo rằng đã tải apt install sudo"
+
 
 OS_ID="$(. /etc/os-release && echo "$ID")"
 OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
