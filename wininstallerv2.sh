@@ -99,7 +99,7 @@ read -rp "👉 Nhập số [1-3]: " win_choice
 case "$win_choice" in
 1) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
 2) WIN_NAME="Windows Server 2022"; WIN_URL="https://archive.org/download/tamnguyen-2022/2022.img"; USE_UEFI="no" ;;
-3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://link-win11.img"; USE_UEFI="yes" ;;
+3) WIN_NAME="Windows 11 LTSB"; WIN_URL="https://archive.org/download/win_20260203/win.img"; USE_UEFI="yes" ;;
 *) WIN_NAME="Windows Server 2012 R2"; WIN_URL="https://archive.org/download/tamnguyen-2012r2/2012.img"; USE_UEFI="no" ;;
 esac
 
