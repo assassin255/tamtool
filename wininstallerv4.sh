@@ -157,15 +157,6 @@ sleep 1
 ;;
 esac
 done
-;;
-
-*)
-echo "❌ Lựa chọn không hợp lệ"
-sleep 1
-;;
-
-esac
-
 
 echo ""
 echo "🪟 Chọn phiên bản Windows muốn tải:"
