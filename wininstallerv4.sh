@@ -110,7 +110,7 @@ break
 
 2)
 echo ""
-echo -e "\033[1;36m🚀 ===== QEMU RUNNING VM ===== 🚀\033[0m" && \
+echo -e "\033[1;36m🚀 ===== MANAGE RUNNING VM ===== 🚀\033[0m" && \
 for pid in $(pgrep -f '^qemu-system'); do \
   cmd=$(tr '\0' ' ' < /proc/$pid/cmdline); \
   vcpu=$(echo "$cmd" | grep -oP '(?<=-smp )[^ ,]+' ); \
@@ -166,7 +166,7 @@ extra_gb="${extra_gb:-20}"
 silent qemu-img resize win.img "+${extra_gb}G"
 
 cpu_host=$(grep -m1 "model name" /proc/cpuinfo | sed 's/^.*: //')
-cpu_model="qemu64,hypervisor=off,tsc=on,invtsc=on,pit=off,pmu=off,l3-cache=on,+cmov,+mmx,+fxsr,+sse2,+ssse3,+sse4.1,+sse4.2,+popcnt,+aes,+cx16,+x2apic,+sep,+pat,+pse,model-id=${cpu_host}"
+cpu_model="qemu64,hypervisor=off,tsc=on,invtsc=on,pmu=off,l3-cache=on,+cmov,+mmx,+fxsr,+sse2,+ssse3,+sse4.1,+sse4.2,+popcnt,+aes,+cx16,+x2apic,+sep,+pat,+pse,model-id=${cpu_host}"
 
 read -rp "⚙ CPU core (default 4): " cpu_core
 cpu_core="${cpu_core:-4}"
@@ -181,7 +181,7 @@ BIOS_OPT=""
 fi
 
 qemu-system-x86_64 \
--machine q35,hpet=off \
+-machine q35,hpet=off,pit=off \
 -cpu "$cpu_model" \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
