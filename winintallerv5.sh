@@ -262,3 +262,5 @@ echo "🟢 Status      : RUNNING"
 echo "⏱ GUI Mode   : Headless / RDP"
 echo "══════════════════════════════════════════════"
 fi
+
+done
