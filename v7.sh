@@ -108,7 +108,6 @@ break
 ;;
 
 2)
-while true; do
 echo ""
 echo -e "\033[1;36m🚀 ===== MANAGE RUNNING VM ===== 🚀\033[0m"
 
