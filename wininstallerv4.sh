@@ -98,7 +98,7 @@ echo "════════════════════════�
 echo "🖥️  WINDOWS VM MANAGER"
 echo "════════════════════════════════════"
 echo "1️⃣  Tạo Windows VM"
-echo "2️⃣  Quản Lý Windows VM"
+echo "2️⃣ Quản Lý Windows VM"
 echo "════════════════════════════════════"
 read -rp "👉 Nhập lựa chọn [1-2]: " main_choice
 
@@ -108,11 +108,7 @@ case "$main_choice" in
 break
 ;;
 
-
-echo ""
-echo "🪟 Chọn phiên bản Windows muốn tải:"
-echo "1️⃣ Windows Server 2012 R2"
-e2)
+2)
 while true; do
 echo ""
 echo -e "\033[1;36m🚀 ===== MANAGE RUNNING VM ===== 🚀\033[0m"
@@ -142,30 +138,39 @@ echo ""
 read -rp "👉 Nhập lựa chọn [1-2]: " manage_choice
 
 case "$manage_choice" in
-
 1)
 read -rp "🆔 Nhập PID VM muốn tắt: " kill_pid
 if [[ -n "$kill_pid" && -d "/proc/$kill_pid" ]]; then
   kill "$kill_pid" 2>/dev/null || true
-  sleep 1
   echo "✅ Đã gửi tín hiệu tắt VM PID $kill_pid"
 else
   echo "❌ PID không hợp lệ"
 fi
 sleep 1
 ;;
-
 2)
 break
 ;;
-
 *)
 echo "❌ Lựa chọn không hợp lệ"
 sleep 1
 ;;
 esac
 done
-;;cho "2️⃣ Windows Server 2022"
+;;
+
+*)
+echo "❌ Lựa chọn không hợp lệ"
+sleep 1
+;;
+
+esac
+
+
+echo ""
+echo "🪟 Chọn phiên bản Windows muốn tải:"
+echo "1️⃣ Windows Server 2012 R2"
+echo "2️⃣ Windows Server 2022"
 echo "3️⃣ Windows 11 LTSB"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
