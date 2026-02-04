@@ -108,24 +108,55 @@ case "$main_choice" in
 break
 ;;
 
-2)
-echo ""
-echo -e "\033[1;36m🚀 ===== MANAGE RUNNING VM ===== 🚀\033[0m" && \
-for pid in $(pgrep -f '^qemu-system'); do \
-  cmd=$(tr '\0' ' ' < /proc/$pid/cmdline); \
-  vcpu=$(echo "$cmd" | grep -oP '(?<=-smp )[^ ,]+' ); \
-  ram=$(echo "$cmd" | grep -oP '(?<=-m )[^ ]+' ); \
-  cpu=$(ps -p $pid -o %cpu=); \
-  mem=$(ps -p $pid -o %mem=); \
-  echo -e "🆔 PID: \033[1;33m$pid\033[0m  |  🔢 vCPU: \033[1;34m${vcpu}\033[0m  |  📦 VM RAM: \033[1;34m${ram}\033[0m  |  🧠 CPU: \033[1;32m${cpu}%\033[0m  |  💾 Host RAM: \033[1;35m${mem}%\033[0m"; \
-done && \
-echo -e "\033[1;36m==================================\033[0m"
 
 echo ""
-read -rp "⌨ Gõ 'back' để quay lại menu: " back_choice
-if [[ "$back_choice" == "back" ]]; then
-continue
+echo "🪟 Chọn phiên bản Windows muốn tải:"
+echo "1️⃣ Windows Server 2012 R2"
+e2)
+while true; do
+echo ""
+echo -e "\033[1;36m🚀 ===== MANAGE RUNNING VM ===== 🚀\033[0m"
+
+VM_LIST=$(pgrep -f '^qemu-system')
+
+if [[ -z "$VM_LIST" ]]; then
+  echo "❌ Không có VM nào đang chạy"
+else
+  for pid in $VM_LIST; do
+    cmd=$(tr '\0' ' ' < /proc/$pid/cmdline)
+    vcpu=$(echo "$cmd" | sed -n 's/.*-smp \([^ ,]*\).*/\1/p')
+    ram=$(echo "$cmd" | sed -n 's/.*-m \([^ ]*\).*/\1/p')
+    cpu=$(ps -p $pid -o %cpu=)
+    mem=$(ps -p $pid -o %mem=)
+
+    echo -e "🆔 PID: \033[1;33m$pid\033[0m  |  🔢 vCPU: \033[1;34m${vcpu}\033[0m  |  📦 VM RAM: \033[1;34m${ram}\033[0m  |  🧠 CPU: \033[1;32m${cpu}%\033[0m  |  💾 Host RAM: \033[1;35m${mem}%\033[0m"
+  done
 fi
+
+echo -e "\033[1;36m==================================\033[0m"
+echo ""
+echo "1️⃣  Tắt VM"
+echo "2️⃣  Quay lại"
+echo ""
+
+read -rp "👉 Nhập lựa chọn [1-2]: " manage_choice
+
+case "$manage_choice" in
+
+1)
+read -rp "🆔 Nhập PID VM muốn tắt: " kill_pid
+if [[ -n "$kill_pid" && -d "/proc/$kill_pid" ]]; then
+  kill "$kill_pid" 2>/dev/null || true
+  sleep 1
+  echo "✅ Đã gửi tín hiệu tắt VM PID $kill_pid"
+else
+  echo "❌ PID không hợp lệ"
+fi
+sleep 1
+;;
+
+2)
+break
 ;;
 
 *)
@@ -134,10 +165,7 @@ sleep 1
 ;;
 esac
 done
-echo ""
-echo "🪟 Chọn phiên bản Windows muốn tải:"
-echo "1️⃣ Windows Server 2012 R2"
-echo "2️⃣ Windows Server 2022"
+;;cho "2️⃣ Windows Server 2022"
 echo "3️⃣ Windows 11 LTSB"
 read -rp "👉 Nhập số [1-3]: " win_choice
 
